@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   mongo:
-    image: mongo
+    image: mongo:7.0
     container_name: job-portal-mongo
     volumes:
       - mongo-data:/data/db
@@ -17,21 +17,19 @@ services:
     depends_on:
       - mongo
     environment:
-      -  MONGO_URL=mongodb://mongo:27017/job-portal
-    volumes:
-      - ./server:/app
-      - /app/node_modules
+      - MONGO_URL=mongodb://job-portal-mongo:27017/job-portal
+    restart: always
 
   client:
     build: ./client
     container_name: job-portal-client
     ports:
       - "5137:5137"
-    tty: true
-    stdin_open: true
-    volumes:
-      - ./client:/app
-      - /app/node_modules
+    environment:
+      - VITE_API_URL=${VITE_API_URL}
+    depends_on:
+      - server
+    restart: always
 
 volumes:
   mongo-data:

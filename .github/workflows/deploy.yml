@@ -1,0 +1,38 @@
+name: Build and Deploy Directly to EC2
+
+on:
+  push:
+    branches:
+      - dev
+
+env:
+  MONGO_URL: ${{ secrets.MONGO_URL }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      #Отримати код з репозиторію
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Підключення по SSH до EC2 та деплой
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            echo "=== Pull latest code ==="
+            cd ~/jobportal || git clone https://github.com/drbarzaga/job-portal.git ~/jobportal
+            cd ~/jobportal
+            git pull origin main
+
+            echo "=== Building Docker containers ==="
+            docker-compose down || true
+            docker-compose build --no-cache
+            docker-compose up -d
+
+            echo "=== Deployment complete ==="
