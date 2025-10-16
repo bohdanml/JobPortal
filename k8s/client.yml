@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: job-portal-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: job-portal-client
+  template:
+    metadata:
+      labels:
+        app: job-portal-client
+    spec:
+      containers:
+      - name: job-portal-client
+        image: job-portal-client:latest
+        imagePullPolicy: Never 
+        ports:
+        - containerPort: 5137
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: job-portal-client
+spec:
+  type: ClusterIP 
+  selector:
+    app: job-portal-client
+  ports:
+  - port: 5137
+    targetPort: 5137

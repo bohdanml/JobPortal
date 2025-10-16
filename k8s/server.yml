@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: job-portal-server
+  template:
+    metadata:
+      labels:
+        app: job-portal-server
+    spec:
+      containers:
+      - name: job-portal-server
+        image: job-portal-server:latest
+        imagePullPolicy: Never 
+        ports:
+        - containerPort: 5555
+        env:
+        - name: MONGO_URL
+          value: "mongodb://mongo:27017/job-portal"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: job-portal-server
+spec:
+  type: ClusterIP 
+  selector:
+    app: job-portal-server
+  ports:
+  - port: 5555
+    targetPort: 5555
